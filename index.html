@@ -329,17 +329,71 @@
         }
 
         // --- BACKEND API PIPELINE ---
-        async function loadEcosystemCatalog() {
-            try {
-                const res = await fetch('http://localhost:8080/api/catalog');
-                const data = await res.json();
-                fullCatalog = data.catalog;
-                renderUIBlocks();
-                initTilt(); // Bind 3D tilt to new cards
-            } catch (err) {
-                document.getElementById('chat-thread').innerHTML += `<div class="chat-entry text-red-500 font-bold">[!] BACKEND CONNECTION FAULT: Ensure Python backend is running on port 8080.</div>`;
+        // --- BACKEND API PIPELINE WITH OFFLINE FALLBACK ---
+async function loadEcosystemCatalog() {
+    try {
+        // Attempt to grab live data if running locally
+        const res = await fetch('http://localhost:8080/api/catalog');
+        const data = await res.json();
+        fullCatalog = data.catalog;
+        
+        document.getElementById('chat-thread').innerHTML += `
+            <div class="chat-entry text-green-400 font-bold">[✓] CONNECTED TO COMPUTE CLUSTER SUCCESFULLY.</div>`;
+    } catch (err) {
+        // MOCK DATASET: Kicks in automatically on GitHub Pages!
+        fullCatalog = [
+            {
+                type: "Movies & Series",
+                title: "Ghost in the Shell (S.A.C)",
+                tag: "Cybernetic Consciousness & Stand Alone Complex Systems",
+                badge: "NEURAL NET",
+                synopsis: "An analysis of multi-agent cybernetic networks operating in decentralized data environments, focusing on section 9 infrastructural deployment.",
+                match: "98.4%",
+                vram_cost: "12.4 GB",
+                voice_engine: "RVC / Local",
+                director: "Kenji Kamiyama",
+                duration: "24 min / Ep",
+                vibe: "Intense",
+                img: "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=1200"
+            },
+            {
+                type: "Movies & Series",
+                title: "The Matrix: Resurrections",
+                tag: "Simulated Realities & Modal Instance Optimization",
+                badge: "SIMULATION",
+                synopsis: "A case study exploring the recursive parameters of a fully enclosed sovereign simulation architecture utilizing localized LLM models.",
+                match: "94.1%",
+                vram_cost: "14.1 GB",
+                voice_engine: "TTS / Edge",
+                director: "Lana Wachowski",
+                duration: "148 min",
+                vibe: "Intense",
+                img: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=1200"
+            },
+            {
+                type: "Hi-Fi Music Tracks",
+                title: "Cyberpunk Ambient Nodes",
+                tag: "Low-Frequency Synthesis for Deep Work Focus",
+                badge: "AUDIO NODE",
+                synopsis: "High-fidelity acoustic frequencies optimized via Retrieval-Based Voice Conversion nodes to minimize mental latency during code compilation.",
+                match: "99.2%",
+                vram_cost: "2.1 GB",
+                voice_engine: "FCPE / RMVPE",
+                director: "Silicon Spirit Core",
+                duration: "4:12",
+                vibe: "Low Energy",
+                img: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=1200"
             }
-        }
+        ];
+
+        document.getElementById('chat-thread').innerHTML += `
+            <div class="chat-entry text-amber-400 font-bold">[!] STANDALONE MODE: Local cluster offline. Running via client-side matrix cache.</div>`;
+    }
+    
+    // Render the layout using whichever dataset loaded
+    renderUIBlocks();
+    initTilt();
+}
 
         function renderUIBlocks() {
             const container = document.getElementById('catalog-grid');
